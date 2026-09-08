@@ -3,321 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MovieMood | Your Mood, Your Movie</title>
-
+    <title>Mood Movie - เลือกหนังตามอารมณ์คุณ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- ================= HEADER ================= -->
+    <header>
+        <div class="logo">🎬 Mood Movie</div>
+    </header>
 
-<header>
-
-    <div class="logo">
-        🎬 MovieMood
-    </div>
-
-    <nav>
-        <a href="#home">หน้าหลัก</a>
-        <a href="#movies">หนังทั้งหมด</a>
-        <a href="#add">เพิ่มหนัง</a>
-    </nav>
-
-</header>
-
-
-<!-- ================= HOME ================= -->
-
-<section id="home" class="hero">
-
-    <div class="hero-content">
-
-        <p class="mini-title">
-            YOUR MOOD. YOUR MOVIE.
-        </p>
-
-        <h1>
-            วันนี้คุณรู้สึก<br>
-            <span>อย่างไร?</span>
-        </h1>
-
-        <p class="subtitle">
-            เลือกอารมณ์ของคุณ แล้ว MovieMood
-            จะช่วยแนะนำหนังที่เหมาะกับคุณ
-        </p>
-
-
-        <!-- MOOD -->
-
-        <div class="mood-container">
-
-            <button class="mood" onclick="selectMood('happy', this)">
-                <span>😄</span>
-                <small>มีความสุข</small>
-            </button>
-
-            <button class="mood" onclick="selectMood('sad', this)">
-                <span>😢</span>
-                <small>เศร้า</small>
-            </button>
-
-            <button class="mood" onclick="selectMood('angry', this)">
-                <span>😡</span>
-                <small>หงุดหงิด</small>
-            </button>
-
-            <button class="mood" onclick="selectMood('bored', this)">
-                <span>😴</span>
-                <small>เบื่อ</small>
-            </button>
-
-            <button class="mood" onclick="selectMood('romantic', this)">
-                <span>❤️</span>
-                <small>โรแมนติก</small>
-            </button>
-
-            <button class="mood" onclick="selectMood('scared', this)">
-                <span>😱</span>
-                <small>ตื่นเต้น</small>
-            </button>
-
+    <div class="container">
+        <div class="hero">
+            <h1>วันนี้คุณรู้สึกอย่างไร?</h1>
+            <p>เลือกอารมณ์หรือพิมพ์ความรู้สึกของคุณ แล้วระบบจะแนะนำหนังที่ใช่มาให้ทันที</p>
         </div>
 
+        <!-- Custom Mood Input Box -->
+        <div class="custom-mood-section">
+            <input type="text" id="userCurrentMood" placeholder="พิมพ์อารมณ์ของคุณตอนนี้ เช่น เหงาๆ อยากหาเพื่อนคุย, อยากตื่นเต้น...">
+            <button onclick="searchByCustomMood()">ค้นหาหนังตามใจฉัน</button>
+        </div>
 
-        <button class="find-button" onclick="recommendMovie()">
-            🎬 FIND MY MOVIE
-        </button>
+        <!-- Filter Buttons -->
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterMovies('all', event)">ทั้งหมด</button>
+            <button class="filter-btn" onclick="filterMovies('เศร้าซึ้ง', event)">เศร้าซึ้ง 😭</button>
+            <button class="filter-btn" onclick="filterMovies('ตื่นเต้น/ลุ้นระทึก', event)">ตื่นเต้น/ลุ้นระทึก 🔥</button>
+            <button class="filter-btn" onclick="filterMovies('ตลก/คลายเครียด', event)">ตลก/คลายเครียด 😂</button>
+            <button class="filter-btn" onclick="filterMovies('โรแมนติก', event)">โรแมนติก ❤️</button>
+        </div>
 
+        <!-- Movie Display Grid -->
+        <div class="movie-grid" id="movieGrid">
+            <!-- หนังจะถูกแสดงผ่าน JavaScript -->
+        </div>
+
+        <!-- Form Add Movie to Google Sheets -->
+        <div class="form-section">
+            <h2>➕ เสนอแนะภาพยนตร์ที่คุณชื่นชอบ</h2>
+            <form id="movieForm" onsubmit="submitToGoogleSheet(event)">
+                <div class="form-group">
+                    <label>ชื่อภาพยนตร์</label>
+                    <input type="text" id="movieTitle" required placeholder="เช่น หลานม่า">
+                </div>
+                <div class="form-group">
+                    <label>อารมณ์ของหนัง</label>
+                    <select id="movieMood">
+                        <option value="เศร้าซึ้ง">เศร้าซึ้ง</option>
+                        <option value="ตื่นเต้น/ลุ้นระทึก">ตื่นเต้น/ลุ้นระทึก</option>
+                        <option value="ตลก/คลายเครียด">ตลก/คลายเครียด</option>
+                        <option value="โรแมนติก">โรแมนติก</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>คะแนน (เต็ม 10)</label>
+                    <input type="number" id="movieRating" min="1" max="10" step="0.1" required placeholder="เช่น 9.5">
+                </div>
+                <div class="form-group">
+                    <label>รีวิวสั้นๆ</label>
+                    <textarea id="movieReview" required placeholder="เขียนรีวิวสั้นๆ เกี่ยวกับหนังเรื่องนี้..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">ส่งข้อมูลเข้า Google Sheets</button>
+                <p id="loading-msg">กำลังส่งข้อมูล...</p>
+            </form>
+        </div>
     </div>
 
-</section>
-
-
-
-<!-- ================= RECOMMEND ================= -->
-
-<section id="recommend" class="section">
-
-    <div class="section-title">
-
-        <p>RECOMMENDED FOR YOU</p>
-
-        <h2>
-            หนังที่เหมาะกับคุณ
-        </h2>
-
+    <!-- Modal สำหรับดูข้อมูลรายละเอียดหนัง -->
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalMood" class="movie-mood" style="display:inline-block; margin: 10px 0;"></p>
+            <p id="modalRating" style="color: #f5c518; font-weight: 600; margin-bottom: 10px;"></p>
+            <p id="modalReview" style="color: var(--text-gray); line-height: 1.6;"></p>
+        </div>
     </div>
 
-
-    <div id="recommendation" class="movie-grid">
-
-        <p class="empty">
-            เลือกอารมณ์เพื่อรับคำแนะนำ 🎬
-        </p>
-
-    </div>
-
-</section>
-
-
-
-<!-- ================= MOVIES ================= -->
-
-<section id="movies" class="section">
-
-    <div class="section-title">
-
-        <p>MOVIE LIBRARY</p>
-
-        <h2>
-            คลังหนัง
-        </h2>
-
-    </div>
-
-
-    <!-- SEARCH -->
-
-    <div class="search-box">
-
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="🔍 ค้นหาชื่อหนัง..."
-            oninput="searchMovies()"
-        >
-
-    </div>
-
-
-    <!-- FILTER -->
-
-    <div class="filter-container">
-
-        <button onclick="filterGenre('all')">
-            ทั้งหมด
-        </button>
-
-        <button onclick="filterGenre('thai')">
-            🇹🇭 หนังไทย
-        </button>
-
-        <button onclick="filterGenre('new')">
-            🆕 หนังใหม่
-        </button>
-
-        <button onclick="filterGenre('romance')">
-            ❤️ โรแมนติก
-        </button>
-
-        <button onclick="filterGenre('comedy')">
-            😂 ตลก
-        </button>
-
-        <button onclick="filterGenre('horror')">
-            👻 สยองขวัญ
-        </button>
-
-    </div>
-
-
-    <!-- MOVIE LIST -->
-
-    <div id="movieList" class="movie-grid"></div>
-
-</section>
-
-
-
-<!-- ================= ADD MOVIE ================= -->
-
-<section id="add" class="section add-section">
-
-    <div class="section-title">
-
-        <p>CREATE MOVIE</p>
-
-        <h2>
-            เพิ่มหนังใหม่
-        </h2>
-
-    </div>
-
-
-    <form id="movieForm">
-
-        <input
-            type="text"
-            id="movieName"
-            placeholder="ชื่อหนัง"
-            required
-        >
-
-
-        <input
-            type="text"
-            id="movieGenre"
-            placeholder="แนวหนัง เช่น Romance / Comedy"
-            required
-        >
-
-
-        <select id="movieMood" required>
-
-            <option value="">
-                เลือก Mood
-            </option>
-
-            <option value="happy">
-                😄 มีความสุข
-            </option>
-
-            <option value="sad">
-                😢 เศร้า
-            </option>
-
-            <option value="angry">
-                😡 หงุดหงิด
-            </option>
-
-            <option value="bored">
-                😴 เบื่อ
-            </option>
-
-            <option value="romantic">
-                ❤️ โรแมนติก
-            </option>
-
-            <option value="scared">
-                😱 ตื่นเต้น
-            </option>
-
-        </select>
-
-
-        <input
-            type="number"
-            id="movieYear"
-            placeholder="ปีที่ฉาย"
-            min="1900"
-            max="2030"
-            required
-        >
-
-
-        <input
-            type="number"
-            id="movieRating"
-            placeholder="คะแนน เช่น 8.5"
-            min="0"
-            max="10"
-            step="0.1"
-            required
-        >
-
-
-        <textarea
-            id="movieDescription"
-            placeholder="เรื่องย่อสั้น ๆ"
-            required
-        ></textarea>
-
-
-        <textarea
-            id="movieReview"
-            placeholder="รีวิวสั้น ๆ เช่น หนังสนุก ดูง่าย เหมาะกับวันพักผ่อน"
-            required
-        ></textarea>
-
-
-        <button type="submit">
-            ➕ เพิ่มหนัง
-        </button>
-
-    </form>
-
-</section>
-
-
-
-<!-- ================= FOOTER ================= -->
-
-<footer>
-
-    <h3>
-        🎬 MovieMood
-    </h3>
-
-    <p>
-        Your Mood. Your Movie.
-    </p>
-
-</footer>
-
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
